@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\UserController;
+use App\Http\Middleware\EnsureTokenIsValid;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Request;
 use App\Models\User;
@@ -64,7 +65,20 @@ Route::get('user/{user}', function (User $user){
     return $user->email;
 })->name('userprofile');
 
-//redirect example
+// middleware example
+Route::middleware(EnsureTokenIsValid::class)->group(function () {
+    Route::get('/profile', function () {
+        return "User Profile 1";
+    });
+});
+Route::get('invalid-token', function () {
+    return "Invalid token";
+});
+Route::get('token', function (Request $request) {
+    echo $token = $request->session()->token();
+
+    //echo csrf_token();
+});
 Route::redirect('/here', '/greeting');
 Route::redirect('/there', '/greeting', 301);
 Route::permanentRedirect('permanent', '/greeting');
