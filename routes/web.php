@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\OnePrincipalController;
 use App\Http\Controllers\UserController;
 use App\Http\Middleware\EnsureTokenIsValid;
 use Illuminate\Support\Facades\Route;
@@ -79,6 +80,11 @@ Route::get('token', function (Request $request) {
 
     //echo csrf_token();
 });
+
+//invokable Controller
+Route::get('/invokable', OnePrincipalController::class);
+
+//redirect routes
 Route::redirect('/here', '/greeting');
 Route::redirect('/there', '/greeting', 301);
 Route::permanentRedirect('permanent', '/greeting');
