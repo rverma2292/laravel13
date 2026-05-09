@@ -4,6 +4,7 @@ use App\Http\Controllers\OnePrincipalController;
 use App\Http\Controllers\UserController;
 use App\Http\Middleware\EnsureTokenIsValid;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\URL;
 use Illuminate\Http\Request;
 use App\Models\User;
 
@@ -12,7 +13,7 @@ Route::get('/', function () {
 });
 
 Route::get('/greeting', function () {
-   return "Hello World";
+   return view('greeting', ['name' => 'John Doe']);
 });
 
 Route::middleware([
@@ -84,6 +85,36 @@ Route::get('token', function (Request $request) {
 //invokable Controller
 Route::get('/invokable', OnePrincipalController::class);
 
+//resource controller
+Route::resource('/photo', \App\Http\Controllers\PhotoController::class);
+
+Route::resources([
+    'posts' => \App\Http\Controllers\PostController::class,
+    'image' => \App\Http\Controllers\PhotoController::class
+]);
+Route::get('/unsubscribe/getsignedurl', function () {
+     //return URL::signedRoute('unsubscribe', ['user' => '1']);
+     //return URL::signedRoute('unsubscribe', ['user' => '1'], absolute: false);
+    return URL::temporarySignedRoute('unsubscribe', now()->plus(seconds: 10), ['user' => '1']);
+});
+Route::get('/unsubscribe/{user}', function (User $user) {
+    return $user->email;
+})->name('unsubscribe')->middleware('signed');
+
+Route::get('/simple', function () {
+    // 1. Try to get the data from cache.
+    // If it's NOT there, run the function and store it for 5 seconds.
+    $value = Cache::remember('active_users', 5, function () {
+        Log::info('--- CACHE MISS: Running Database Query ---');
+
+        $users = User::all(); // Actual DB work
+
+        return "Total Users found: " . $users->count(); // This is what gets saved
+    });
+
+    // 2. Return the result so you can see it in the browser
+    return $value;
+});
 //redirect routes
 Route::redirect('/here', '/greeting');
 Route::redirect('/there', '/greeting', 301);
