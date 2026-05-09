@@ -66,4 +66,12 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
+
+    protected static function booted()
+    {
+        static::created(function ($user) {
+            // This fires automatically whenever a User is 'created' in the DB
+            \App\Events\UserRegistered::dispatch($user);
+        });
+    }
 }
